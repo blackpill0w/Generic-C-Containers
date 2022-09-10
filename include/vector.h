@@ -37,12 +37,12 @@
    }
 
 //! Get an item from the vector using an index, abort if the index is out of bound.
-#define vec_get(vec, i) ({                                              \
-   if (i > (vec)._capacity) {                                           \
-      fprintf(stderr, "\nError: accessing out of bound memory, aborting...\n"); \
-      abort();                                                          \
-   }                                                                    \
-   (vec).v[i];                                                          \
+#define vec_get(vec, i) ({                                                       \
+   if (i > (vec)._capacity) {                                                    \
+      fprintf(stderr, "\nError: accessing out of bound memory, aborting...\n");  \
+      abort();                                                                   \
+   }                                                                             \
+   (vec).v[i];                                                                   \
 })
 
 #define vec_reserve(vec, n)                                    \
