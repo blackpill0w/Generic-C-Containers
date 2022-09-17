@@ -18,7 +18,7 @@
   \def vec_free(vec)
   Free allocated resources.
 */
-#define vec_free(vec) free((vec).vec)
+#define vec_free(vec) free((vec).v)
 
 //! Get vector's length.
 #define vec_len(vec) (vec)._len
@@ -38,7 +38,7 @@
             (vec)._capacity++ * sizeof((vec).v[0])        \
          );                                               \
       }                                                   \
-      (vec).vec[(vec)._len++] = item;                     \
+      (vec).v[(vec)._len++] = item;                       \
    }
 
 //! Get an item from the vector using an index, abort if the index is out of bound.
