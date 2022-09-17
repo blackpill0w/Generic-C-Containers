@@ -1,16 +1,17 @@
-/*! \file */
 #ifndef _GENERIC_VECTOR_H
+#define _GENERIC_VECTOR_H
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-//! Define vector for the given type, the produced type is vec_NAME_SUFFIX
+//! Define vector for the given type, the produced type is vecNAME_SUFFIX
 #define vec_typedef(TYPE, NAME_SUFFIX)          \
    typedef struct {                             \
       unsigned int _len;                        \
       unsigned int _capacity;                   \
       TYPE *v;                                  \
-   } vec_##NAME_SUFFIX;
+   } vec##NAME_SUFFIX;
 
 
 /*!
@@ -72,5 +73,4 @@
       (vec)._capacity = n;                                     \
    }                                                           \
 
-#define _GENERIC_VECTOR_H
 #endif // _GENERIC_VECTOR_H
