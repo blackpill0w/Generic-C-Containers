@@ -5,12 +5,15 @@
 #include <string.h>
 #include <stdio.h>
 
-//! Define vector for the given type, the produced type is vecNAME_SUFFIX
-#define vec_typedef(TYPE, NAME_SUFFIX)          \
-   typedef struct {                             \
-      unsigned int _len;                        \
-      unsigned int _capacity;                   \
-      TYPE *v;                                  \
+/*!
+  Define vector for the given type, the produced type is vecNAME_SUFFIX.
+  Note: suffix is required to allow passing struct SOMETHING as a type.
+*/
+#define vec_typedef(TYPE, NAME_SUFFIX)  \
+   typedef struct {                     \
+      size_t _len;                      \
+      size_t _capacity;                 \
+      TYPE *v;                          \
    } vec##NAME_SUFFIX;
 
 
@@ -20,25 +23,33 @@
 */
 #define vec_free(vec) free((vec).v)
 
-//! Get vector's length.
+/*!
+  Get vector's length.
+  @return (size_t) length.
+*/
 #define vec_len(vec) (vec)._len
 
-//! Get vector's capacity.
+/*!
+  Get vector's capacity.
+  @return (size_t) capacity.
+*/
 #define vec_capacity(vec) (vec)._capacity
 
-//! Sets all bits to 0.
+/*!
+  Initialize a vector to 0 (NULL for the vector's pointer).
+*/
 #define vec_init(vec) memset(&(vec), 0, sizeof(vec)); (vec).v = NULL
 
 //! Insert an item into the vector.
-#define vec_push(vec, item)                               \
-   {                                                      \
-      if ((vec)._len == (vec)._capacity) {                \
-         (vec).v = realloc(                               \
-            (vec).v,                                      \
-            (vec)._capacity++ * sizeof((vec).v[0])        \
-         );                                               \
-      }                                                   \
-      (vec).v[(vec)._len++] = item;                       \
+#define vec_push(vec, item)                          \
+   {                                                 \
+      if ((vec)._len == (vec)._capacity) {           \
+         (vec).v = realloc(                          \
+            (vec).v,                                 \
+            (vec)._capacity++ * sizeof((vec).v[0])   \
+         );                                          \
+      }                                              \
+      (vec).v[(vec)._len++] = item;                  \
    }
 
 //! Get an item from the vector using an index, abort if the index is out of bound.
