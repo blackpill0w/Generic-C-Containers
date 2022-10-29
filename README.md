@@ -1,2 +1,2 @@
 # Generic-C-Containers
-Header only generic containers using macros.
+Header only generic containers.

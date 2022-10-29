@@ -6,6 +6,19 @@
 #include <stdio.h>
 
 /*!
+  Abort and write an out of bound memory access error to stderr.
+*/
+#define out_of_bound_abort() ({                                    \
+   fprintf(stderr,                                                 \
+      "\nError: accessing out of bound memory, aborting...\n"      \
+   ); abort(); 0; })
+
+#define pop_empty_vec_abort() ({                                       \
+   fprintf(stderr,                                                     \
+      "\nError: removing elements from an empty vector, aborting...\n" \
+   ); abort(); 0; })
+
+/*!
   Define vector for the given type, the produced type is vecNAME_SUFFIX.
   Note: suffix is required to allow passing struct SOMETHING as a type.
 */
@@ -16,6 +29,12 @@
       TYPE *v;                          \
    } vec##NAME_SUFFIX;
 
+/*!
+  Initialize a vector to 0.
+*/
+#define vec_init(vec) memset(&(vec), 0, sizeof(vec));   \
+   (vec)._capacity = 1;                                 \
+   (vec).v = malloc(sizeof( *((vec).v) ))
 
 /*!
   \def vec_free(vec)
@@ -35,44 +54,23 @@
 */
 #define vec_capacity(vec) (vec)._capacity
 
-/*!
-  Initialize a vector to 0 (NULL for the vector's pointer).
-*/
-#define vec_init(vec) memset(&(vec), 0, sizeof(vec)); (vec).v = NULL
-
 //! Insert an item into the vector.
-#define vec_push(vec, item)                          \
-   {                                                 \
-      if ((vec)._len == (vec)._capacity) {           \
-         (vec).v = realloc(                          \
-            (vec).v,                                 \
-            (vec)._capacity++ * sizeof((vec).v[0])   \
-         );                                          \
-      }                                              \
-      (vec).v[(vec)._len++] = item;                  \
+#define vec_push(vec, item)                                 \
+   {                                                        \
+      if ((vec)._len == (vec)._capacity) {                  \
+         (vec).v = realloc(                                 \
+            (vec).v,                                        \
+            ((vec)._capacity *= 2) * sizeof( *((vec).v) )   \
+            );                                              \
+      }                                                     \
+      (vec).v[(vec)._len++] = item;                         \
    }
 
 //! Get an item from the vector using an index, abort if the index is out of bound.
-#define vec_get(vec, i) ({                                            \
-   if (i > (vec)._capacity) {                                         \
-      fprintf(stderr,                                                 \
-              "\nError: accessing out of bound memory, aborting...\n" \
-      );                                                              \
-      abort();                                                        \
-   }                                                                  \
-   (vec).v[i];                                                        \
-})
+#define vec_at(vec, i) vec.v[ (i) >= vec._capacity ? out_of_bound_abort() : (i) ]
 
 //! Remove the last item, and return it.
-#define vec_pop(vec)  ({                                              \
-   if ((vec)._len <= 0) {                                             \
-      fprintf(stderr,                                                 \
-              "\nError: accessing out of bound memory, aborting...\n" \
-      );                                                              \
-      abort();                                                        \
-   }                                                                  \
-   (vec).v[(vec)._len-- - 1];                                         \
-})
+#define vec_pop(vec) ((vec)._len == 0) ? pop_empty_vec_abort() : (vec).v[ --((vec)._len) ]
 
 /*!
    Increase the capacity of the vector.
