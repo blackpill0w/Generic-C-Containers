@@ -6,12 +6,17 @@
 #include <stdio.h>
 
 /*!
-  Abort and write an out of bound memory access error to stderr.
+  Abort and write an error to stderr.
+  @param str: the error message to display.
 */
-#define out_of_bound_abort() ({                                    \
-   fprintf(stderr,                                                 \
-      "\nError: accessing out of bound memory, aborting...\n"      \
+#define abort_with_arr_err(str) ({      \
+   fprintf(stderr,                      \
+      "\nError: %s, aborting...\n", str \
    ); abort(); 0; })
+
+#define out_of_bound_arr_err() abort_with_arr_err("Accessing out of bound memory")
+
+#define memory_allocation_arr_err() abort_with_arr_err("Memory allocation failed")
 
 /*!
   Define array for the given type, the produced type is arrNAME_SUFFIX.
@@ -27,7 +32,10 @@
 /*!
   Set size of the array and initialize elements to 0.
 */
-#define arr_init(arr, size) arr._len = size; arr.a = calloc(size, sizeof( *((arr).a) ))
+#define arr_init(arr, size)                        \
+   arr._len = size;                                \
+   arr.a = calloc(size, sizeof( *((arr).a) ));     \
+   if (arr.a == NULL) memory_allocation_arr_err()
 
 /*!
   Free allocated resources.
@@ -41,6 +49,6 @@
 #define arr_len(arr) (arr)._len
 
 //! Get an item from the array using an index, abort if the index is out of bound.
-#define arr_at(arr, i) arr.a[ (i) >= arr._len ? out_of_bound_abort() : (i) ]
+#define arr_at(arr, i) (arr).a[ (i) >= (arr)._len ? out_of_bound_arr_err() : (i) ]
 
 #endif // _GENERIC_ARRAY_H

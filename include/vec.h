@@ -6,17 +6,16 @@
 #include <stdio.h>
 
 /*!
-  Abort and write an out of bound memory access error to stderr.
+  Abort and write an error to stderr.
+  @param str: the error message to display.
 */
-#define out_of_bound_abort() ({                                    \
-   fprintf(stderr,                                                 \
-      "\nError: accessing out of bound memory, aborting...\n"      \
-   ); abort(); 0; })
+#define abort_with_vec_err(str) ({ fprintf(stderr, "\nError: %s, aborting...\n", str); abort(); 0; })
 
-#define pop_empty_vec_abort() ({                                       \
-   fprintf(stderr,                                                     \
-      "\nError: removing elements from an empty vector, aborting...\n" \
-   ); abort(); 0; })
+#define out_of_bound_vec_err() abort_with_vec_err("Accessing out of bound memory")
+
+#define memory_allocation_vec_err() abort_with_vec_err("Memory allocation failed")
+
+#define pop_empty_vec_vec_err() abort_with_vec_err("removing elements from an empty vector")
 
 /*!
   Define vector for the given type, the produced type is vecNAME_SUFFIX.
@@ -34,7 +33,8 @@
 */
 #define vec_init(vec) memset(&(vec), 0, sizeof(vec));   \
    (vec)._capacity = 1;                                 \
-   (vec).v = malloc(sizeof( *((vec).v) ))
+   (vec).v = malloc(sizeof( *((vec).v) ));              \
+   if (vec.v == NULL) memory_allocation_vec_err()
 
 /*!
   \def vec_free(vec)
@@ -61,16 +61,17 @@
          (vec).v = realloc(                                 \
             (vec).v,                                        \
             ((vec)._capacity *= 2) * sizeof( *((vec).v) )   \
-            );                                              \
+         );                                                 \
+         if (vec.v == NULL) memory_allocation_vec_err();    \
       }                                                     \
       (vec).v[(vec)._len++] = item;                         \
    }
 
 //! Get an item from the vector using an index, abort if the index is out of bound.
-#define vec_at(vec, i) vec.v[ (i) >= vec._capacity ? out_of_bound_abort() : (i) ]
+#define vec_at(vec, i) vec.v[ (i) >= vec._capacity ? out_of_bound_vec_err() : (i) ]
 
 //! Remove the last item, and return it.
-#define vec_pop(vec) ((vec)._len == 0) ? pop_empty_vec_abort() : (vec).v[ --((vec)._len) ]
+#define vec_pop(vec) ((vec)._len == 0) ? pop_empty_vec_vec_err() : (vec).v[ --((vec)._len) ]
 
 /*!
    Increase the capacity of the vector.
@@ -79,6 +80,7 @@
 #define vec_reserve(vec, n)                                    \
    if ((vec)._capacity < n) {                                  \
       (vec).v = realloc((vec).v, n * sizeof((vec).v[0]) );     \
+      if (vec.v == NULL) memory_allocation_vec_err();          \
       (vec)._capacity = n;                                     \
    }                                                           \
 
