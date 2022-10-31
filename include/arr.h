@@ -26,8 +26,7 @@
    typedef struct {                     \
       size_t _len;                      \
       TYPE *a;                          \
-   } arr##NAME_SUFFIX;
-
+   } arr##NAME_SUFFIX
 
 /*!
   Set size of the array and initialize elements to 0.
